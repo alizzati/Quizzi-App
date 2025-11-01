@@ -6,7 +6,6 @@ void main() {
   runApp(const QuizardApp());
 }
 
-
 class QuizardApp extends StatelessWidget {
   const QuizardApp({Key? key}) : super(key: key);
 
