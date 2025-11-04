@@ -18,19 +18,30 @@ class QuestionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double padding = 16;
-    return Center(
+
+    return Center( // memastikan posisi di tengah layar
       child: Card(
         margin: EdgeInsets.all(padding),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        color: Colors.white.withOpacity(0.2), // 🔹 ini membuat background transparan
+        elevation: 6, // bisa kamu ubah ke 0 jika mau benar-benar flat
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: Colors.white.withOpacity(0.3)), // opsional, efek outline lembut
+        ),
         child: Padding(
           padding: EdgeInsets.all(padding),
           child: Column(
+            mainAxisSize: MainAxisSize.min, // supaya tidak mengambil seluruh tinggi layar
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Text('Question $questionNumber', style: Theme.of(context).textTheme.titleMedium),
-              // const SizedBox(height: 8),
-              Text(question.text, style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: 50),
+              Text(
+                question.text,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: Colors.white, // biar kontras dengan background transparan
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 40),
               ...List.generate(question.options.length, (i) {
                 final bool isSelected = selectedIndex == i;
                 return Padding(
@@ -40,11 +51,19 @@ class QuestionCard extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
                       decoration: BoxDecoration(
-                        color: isSelected ? Colors.indigo.shade50 : Colors.white,
+                        color: isSelected
+                            ? Colors.indigo.withOpacity(0.3)
+                            : Colors.white.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: isSelected ? Colors.indigo : Colors.grey.shade300),
+                        border: Border.all(
+                          color: isSelected ? Colors.indigoAccent : Colors.white24,
+                        ),
                       ),
-                      child: Text(question.options[i], style: const TextStyle(fontSize: 16), textAlign: TextAlign.center,),
+                      child: Text(
+                        question.options[i],
+                        style: const TextStyle(fontSize: 16, color: Colors.white),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
                 );
