@@ -26,10 +26,10 @@ class QuestionCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Question $questionNumber', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
+            // Text('Question $questionNumber', style: Theme.of(context).textTheme.titleMedium),
+            // const SizedBox(height: 8),
             Text(question.text, style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 16),
+            const SizedBox(height: 50),
             ...List.generate(question.options.length, (i) {
               final bool isSelected = selectedIndex == i;
               return Padding(

@@ -4,6 +4,9 @@ import '../models/question_model.dart';
 import '../utils/question_data.dart';
 
 class QuizState extends ChangeNotifier {
+  // 🧩 Tambahan: nama pemain
+  String playerName;
+
   // Data
   final List<Question> questions = List.of(questionsData);
 
@@ -17,7 +20,8 @@ class QuizState extends ChangeNotifier {
   int timeLeft = 15;
   Timer? _timer;
 
-  QuizState() {
+  // 🧩 Konstruktor menerima nama pemain
+  QuizState({required this.playerName}) {
     _init();
   }
 
@@ -47,33 +51,30 @@ class QuizState extends ChangeNotifier {
     return s;
   }
 
+  void setPlayerName(String name) {
+    playerName = name;
+    notifyListeners();
+  }
+
   // Pilih jawaban — simpan jawaban, update lives bila salah, jangan tampilkan benar/salah
   void selectAnswer(int index) {
     final prev = userAnswers[currentIndex];
     final correct = questions[currentIndex].correctIndex;
 
-    // Jika belum pernah dipilih sebelumnya
     if (prev == null) {
       userAnswers[currentIndex] = index;
       if (index != correct) {
         lives = (lives - 1).clamp(0, 99);
       }
     } else if (prev != index) {
-      // jika user mengganti jawaban, tangani perubahan lives dengan menyesuaikan
       if (prev == correct && index != correct) {
-        // dari benar -> salah : reduce life
         lives = (lives - 1).clamp(0, 99);
-      } else if (prev != correct && index == correct) {
-        // dari salah -> benar : restore nothing (tidak menambah life)
-        // (kebijakan: tidak menambah life)
       }
       userAnswers[currentIndex] = index;
     }
-    // setelah memilih jawaban, stop timer (soal dianggap selesai)
+
     _cancelTimer();
     notifyListeners();
-
-    // Jika lives habis, lanjut ke hasil akan di-handle oleh UI (cek state.lives)
   }
 
   // Navigasi
@@ -102,7 +103,6 @@ class QuizState extends ChangeNotifier {
         timeLeft--;
         notifyListeners();
       } else {
-        // waktu habis untuk soal ini
         _onTimeUp();
       }
     });
@@ -116,17 +116,12 @@ class QuizState extends ChangeNotifier {
 
   void _onTimeUp() {
     _cancelTimer();
-    // kurangi life 1 saat timer habis
     lives = (lives - 1).clamp(0, 99);
 
-    // jika lives masih ada, pindah ke soal berikutnya (jika ada)
     if (lives > 0 && currentIndex < questions.length - 1) {
       currentIndex++;
       timeLeft = timePerQuestion;
       startTimer();
-    } else {
-      // lives habis atau tidak ada soal, biarkan UI menangani navigasi ke result
-      notifyListeners();
     }
     notifyListeners();
   }
