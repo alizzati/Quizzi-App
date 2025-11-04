@@ -1,57 +1,57 @@
-import 'question_model.dart';
-
+import '../utils/question_data.dart';
+import '../models/question_model.dart';
 
 class QuizState {
-  QuizState._privateConstructor();
-  static final QuizState instance = QuizState._privateConstructor();
-
+  static final QuizState instance = QuizState._internal();
+  factory QuizState() => instance;
+  QuizState._internal();
 
   late List<Question> questions;
   int currentIndex = 0;
+  int? selectedIndex;
   int score = 0;
-  List<int?> userAnswers = [];
+  bool isAnswered = false;
 
+  final List<int?> userAnswers = List.filled(5, null);
 
-  void init(List<Question> qs) {
-    questions = qs;
-    currentIndex = 0;
-    score = 0;
-    userAnswers = List<int?>.filled(qs.length, null);
+  void init() {
+    // ambil dari question_data.dart
+    questions = List.of(questionsData);
   }
 
-
   void answer(int index) {
-    if (userAnswers[currentIndex] == null) {
+    if (!isAnswered) {
+      selectedIndex = index;
       userAnswers[currentIndex] = index;
-      if (questions[currentIndex].correctAnswerIndex == index) score += 1;
-    } else {
-// if changing answer, update score accordingly
-      int? prev = userAnswers[currentIndex];
-      if (prev != null && prev != index) {
-        if (questions[currentIndex].correctAnswerIndex == prev) score -= 1;
-        if (questions[currentIndex].correctAnswerIndex == index) score += 1;
-        userAnswers[currentIndex] = index;
+      isAnswered = true;
+
+      if (questions[currentIndex].correctIndex == index) {
+        score += 20;
       }
     }
   }
 
-
-  bool get isFinished => currentIndex >= questions.length - 1;
-
-
   void next() {
-    if (currentIndex < questions.length - 1) currentIndex += 1;
+    if (currentIndex < questions.length - 1) {
+      currentIndex++;
+      isAnswered = false;
+    }
   }
-
 
   void previous() {
-    if (currentIndex > 0) currentIndex -= 1;
+    if (currentIndex > 0) {
+      currentIndex--;
+      isAnswered = false;
+    }
   }
 
-
   void reset() {
-    for (int i = 0; i < userAnswers.length; i++) userAnswers[i] = null;
     currentIndex = 0;
     score = 0;
+    selectedIndex = null;
+    isAnswered = false;
+    for (int i = 0; i < userAnswers.length; i++) {
+      userAnswers[i] = null;
+    }
   }
 }

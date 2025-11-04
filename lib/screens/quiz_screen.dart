@@ -1,93 +1,247 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import '../models/quiz_state.dart';
-import '../widgets/question_card.dart';
+import '../models/question_model.dart';
+import '../utils/question_data.dart';
+import '../widgets/custom_button.dart';
 import 'result_screen.dart';
 
 class QuizScreen extends StatefulWidget {
-  final String playerName;
-  const QuizScreen({Key? key, required this.playerName}) : super(key: key);
-
+  const QuizScreen({super.key});
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
 }
 
-class _QuizScreenState extends State<QuizScreen> with AutomaticKeepAliveClientMixin {
-  final QuizState state = QuizState.instance;
-
+class _QuizScreenState extends State<QuizScreen> {
+  int currentIndex = 0;
+  int score = 0;
+  int lives = 3;
+  int timeLeft = 60;
+  Timer? countdownTimer;
+  int? selectedIndex;
+  List<int?> userAnswers = List.filled(5, null); // untuk 5 soal
 
   @override
   void initState() {
     super.initState();
-// state should be initialized from Home before pushing this screen
+    startTimer();
   }
 
-
-  void _select(int index) {
-    setState(() {
-      state.answer(index);
+  void startTimer() {
+    countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (timeLeft > 0) {
+        setState(() => timeLeft--);
+      } else {
+        timer.cancel();
+        goToResult(isWin: false, image: 'assets/images/lose.png');
+      }
     });
   }
 
-  void _next() {
-    if (state.currentIndex < state.questions.length - 1) {
-      setState(() {
-        state.next();
-      });
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (_) => ResultScreen(playerName: widget.playerName)),
-      );
-    }
-  }
-
-
-  void _previous() {
-    setState(() {
-      state.previous();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    final q = state.questions[state.currentIndex];
-    final selected = state.userAnswers[state.currentIndex];
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Quiz - ${widget.playerName}'),
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: QuestionCard(
-              question: q,
-              questionNumber: state.currentIndex + 1,
-              selectedIndex: selected,
-              onSelect: _select,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (state.currentIndex > 0)
-                  TextButton(onPressed: _previous, child: const Text('Previous'))
-                else
-                  const SizedBox(width: 88),
-                ElevatedButton(onPressed: _next, child: Text(state.currentIndex < state.questions.length - 1 ? 'Next' : 'Finish')),
-              ],
-            ),
-          )
-        ],
+  void goToResult({required bool isWin, required String image}) {
+    countdownTimer?.cancel();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ResultScreen(
+          score: score,
+          totalQuestions: questionsData.length,
+          isWin: isWin,
+          imagePath: image,
+        ),
       ),
     );
   }
 
+  void selectAnswer(int index) {
+    final currentQuestion = questionsData[currentIndex];
+    final prevAnswer = userAnswers[currentIndex];
+
+    setState(() {
+      selectedIndex = index;
+      userAnswers[currentIndex] = index;
+
+      if (prevAnswer == null) {
+        // jawaban baru
+        if (index == currentQuestion.correctIndex) {
+          score += 20;
+        } else {
+          lives--;
+        }
+      } else {
+        // jika ubah jawaban dari benar ke salah
+        if (prevAnswer == currentQuestion.correctIndex &&
+            index != currentQuestion.correctIndex) {
+          score -= 20;
+          lives--;
+        }
+        // jika ubah dari salah ke benar
+        else if (prevAnswer != currentQuestion.correctIndex &&
+            index == currentQuestion.correctIndex) {
+          score += 20;
+        }
+      }
+
+      // Jika nyawa habis
+      if (lives <= 0) {
+        goToResult(isWin: false, image: 'assets/images/lose.png');
+      }
+    });
+  }
+
+  void nextQuestion() {
+    if (currentIndex < questionsData.length - 1) {
+      setState(() {
+        currentIndex++;
+        selectedIndex = userAnswers[currentIndex];
+      });
+    } else {
+      goToResult(isWin: true, image: 'assets/images/gold.png');
+    }
+  }
+
+  void previousQuestion() {
+    if (currentIndex > 0) {
+      setState(() {
+        currentIndex--;
+        selectedIndex = userAnswers[currentIndex];
+      });
+    }
+  }
+
+  Color getAnswerColor(int index) {
+    final currentQuestion = questionsData[currentIndex];
+    final selected = userAnswers[currentIndex];
+
+    if (selected == null) return Colors.white;
+    if (index == currentQuestion.correctIndex) return Colors.greenAccent;
+    if (index == selected && index != currentQuestion.correctIndex) {
+      return Colors.redAccent;
+    }
+    return Colors.white;
+  }
+
   @override
-  bool get wantKeepAlive => true;
+  void dispose() {
+    countdownTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final currentQuestion = questionsData[currentIndex];
+
+    return Scaffold(
+      backgroundColor: const Color(0xFF0B1023),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Top bar: timer & hearts
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.timer, color: Colors.white),
+                      const SizedBox(width: 5),
+                      Text("$timeLeft s",
+                          style: const TextStyle(color: Colors.white)),
+                    ],
+                  ),
+                  Row(
+                    children: List.generate(
+                      3,
+                          (i) => Icon(
+                        i < lives
+                            ? Icons.favorite
+                            : Icons.favorite_border_outlined,
+                        color: Colors.pinkAccent,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              Text(
+                "Question ${currentIndex + 1} of ${questionsData.length}",
+                style:
+                const TextStyle(color: Colors.white70, fontSize: 16),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                currentQuestion.text,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 30),
+
+              // Option buttons
+              Column(
+                children: List.generate(currentQuestion.options.length, (i) {
+                  final option = currentQuestion.options[i];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: GestureDetector(
+                      onTap: () => selectAnswer(i),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 16, horizontal: 14),
+                        decoration: BoxDecoration(
+                          color: getAnswerColor(i),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: Colors.white30),
+                        ),
+                        child: Text(
+                          option,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+
+              const Spacer(),
+
+              // Navigation buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CustomButton(
+                    text: "Previous",
+                    onPressed:
+                    currentIndex > 0 ? previousQuestion : null,
+                    color: Colors.grey[800]!,
+                  ),
+                  CustomButton(
+                    text: currentIndex == questionsData.length - 1
+                        ? "Finish"
+                        : "Next",
+                    onPressed: userAnswers[currentIndex] != null
+                        ? nextQuestion
+                        : null,
+                    color: Colors.blueAccent,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

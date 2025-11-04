@@ -31,7 +31,7 @@ class QuestionCard extends StatelessWidget {
           children: [
             Text('Question ${questionNumber}', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
-            Text(question.questionText, style: Theme.of(context).textTheme.titleLarge),
+            Text(question.text, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 16),
             ...List.generate(question.options.length, (i) {
               final bool isSelected = selectedIndex == i;

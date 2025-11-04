@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
+import 'screens/welcome_screen.dart';
 import 'screens/signup_screen.dart';
+import 'screens/home_screen.dart';
 import 'screens/quiz_screen.dart';
 import 'screens/result_screen.dart';
 import 'screens/profile_screen.dart';
@@ -22,15 +23,20 @@ class QuizardApp extends StatelessWidget {
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: ThemeMode.light,
-      initialRoute: '/signup',
+      initialRoute: '/welcome',
       routes: {
+        '/welcome': (_) => const WelcomeScreen(),
         '/signup': (_) => const SignUpScreen(),
-        '/home': (_) => const HomeScreen(),
-        '/quiz': (_) => const QuizScreen(playerName: ''),
-        '/result': (_) => const ResultScreen(),
+        '/home': (_) => const HomeScreen(playerName: ''),
+        '/quiz': (_) => const QuizScreen(),
+        '/result': (_) => const ResultScreen(
+          score: 0,
+          totalQuestions: 0,
+          isWin: true,
+          imagePath: '',
+        ),
         '/profile': (_) => const ProfileScreen(),
       },
     );
   }
 }
-
