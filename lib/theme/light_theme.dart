@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 final ThemeData lightTheme = ThemeData(
   brightness: Brightness.light,
   primarySwatch: Colors.deepPurple,
   scaffoldBackgroundColor: Colors.white,
-  textTheme: const TextTheme(
-    displaySmall: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.deepPurple),
-    headlineMedium: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: Colors.black87),
-    headlineSmall: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black54),
-    bodyMedium: TextStyle(fontSize: 16, color: Colors.black87),
+  textTheme: GoogleFonts.poppinsTextTheme(
+    const TextTheme(
+      displaySmall: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+      headlineMedium: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: Colors.black87),
+      headlineSmall: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black54),
+      bodyMedium: TextStyle(fontSize: 16, color: Colors.black87),
+    ),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(

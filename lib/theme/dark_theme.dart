@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 final ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
@@ -8,13 +9,15 @@ final ThemeData darkTheme = ThemeData(
     primary: const Color(0xFF7C4DFF),
     secondary: const Color(0xFFB388FF),
   ),
-  textTheme: const TextTheme(
-    displaySmall: TextStyle(
-      fontSize: 36,
-      fontWeight: FontWeight.bold,
-      color: Colors.white,
+  textTheme: GoogleFonts.poppinsTextTheme(
+    const TextTheme(
+      displaySmall: TextStyle(
+        fontSize: 36,
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
+      ),
+      titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+      bodyMedium: TextStyle(fontSize: 16, color: Colors.white70),
     ),
-    titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-    bodyMedium: TextStyle(fontSize: 16),
   ),
 );
