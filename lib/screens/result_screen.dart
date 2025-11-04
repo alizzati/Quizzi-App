@@ -4,8 +4,8 @@ import 'home_screen.dart';
 
 
 class ResultScreen extends StatelessWidget {
-  final String playerName;
   const ResultScreen({Key? key, required this.playerName}) : super(key: key);
+  final String playerName;
 
 
   @override

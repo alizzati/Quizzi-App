@@ -56,6 +56,11 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  assets:
+    - images/gradient1.png
+    - images/gradient2.png
+    - images/gradient3.png
+    - images/hartakarun.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
