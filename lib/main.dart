@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'models/quiz_state.dart';
 import 'screens/welcome_screen.dart';
-import 'screens/signup_screen.dart';
-import 'screens/home_screen.dart';
-import 'screens/quiz_screen.dart';
-import 'screens/result_screen.dart';
-import 'screens/profile_screen.dart';
 import 'theme/light_theme.dart';
 import 'theme/dark_theme.dart';
 
 void main() {
-  runApp(const QuizardApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => QuizState(), // menyediakan state global
+      child: const MyApp(),
+    ),
+  );
 }
 
-class QuizardApp extends StatelessWidget {
-  const QuizardApp({Key? key}) : super(key: key);
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,20 +24,11 @@ class QuizardApp extends StatelessWidget {
       title: 'Quizard',
       theme: lightTheme,
       darkTheme: darkTheme,
-      themeMode: ThemeMode.light,
-      initialRoute: '/welcome',
+      themeMode: ThemeMode.system,
+      home: const WelcomeScreen(),
       routes: {
         '/welcome': (_) => const WelcomeScreen(),
-        '/signup': (_) => const SignUpScreen(),
-        '/home': (_) => const HomeScreen(playerName: ''),
-        '/quiz': (_) => const QuizScreen(),
-        '/result': (_) => const ResultScreen(
-          score: 0,
-          totalQuestions: 0,
-          isWin: true,
-          imagePath: '',
-        ),
-        '/profile': (_) => const ProfileScreen(),
+        // tambahkan route lainnya seperti signup, home, quiz, result
       },
     );
   }

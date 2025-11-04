@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {
-  /// You can pass the button label either via `text` or `label`.
-  /// One of them must be non-null.
   final String _displayText;
   final VoidCallback? onPressed;
   final Color? color;
@@ -19,8 +17,7 @@ class CustomButton extends StatelessWidget {
     this.width,
     this.height = 50,
     this.textStyle,
-  })  : assert(text != null || label != null,
-  'Either text or label must be provided'),
+  })  : assert(text != null || label != null, 'text or label required'),
         _displayText = text ?? label ?? '',
         super(key: key);
 
@@ -28,9 +25,8 @@ class CustomButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color background =
         color ?? Theme.of(context).elevatedButtonTheme.style?.backgroundColor?.resolve({}) ?? Theme.of(context).primaryColor;
-    final Color foreground = ThemeData.estimateBrightnessForColor(background) == Brightness.dark
-        ? Colors.white
-        : Colors.black87;
+    final bool enabled = onPressed != null;
+    final Color fg = ThemeData.estimateBrightnessForColor(background) == Brightness.dark ? Colors.white : Colors.black87;
 
     return SizedBox(
       width: width ?? double.infinity,
@@ -38,17 +34,11 @@ class CustomButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: onPressed != null ? background : background.withOpacity(0.45),
-          foregroundColor: onPressed != null ? (ThemeData.estimateBrightnessForColor(background) == Brightness.dark ? Colors.white : Colors.black87) : Colors.white70,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          textStyle: textStyle ?? const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          backgroundColor: enabled ? background : background.withOpacity(0.45),
+          foregroundColor: enabled ? fg : Colors.white70,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
-        child: Text(_displayText),
+        child: Text(_displayText, style: textStyle),
       ),
     );
   }

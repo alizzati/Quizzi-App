@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import '../models/question_model.dart';
 
-
 class QuestionCard extends StatelessWidget {
   final Question question;
   final int questionNumber;
   final int? selectedIndex;
   final void Function(int) onSelect;
-
 
   const QuestionCard({
     Key? key,
@@ -17,19 +15,18 @@ class QuestionCard extends StatelessWidget {
     this.selectedIndex,
   }) : super(key: key);
 
-
   @override
   Widget build(BuildContext context) {
-    final double cardPadding = 16;
+    final double padding = 16;
     return Card(
-      margin: EdgeInsets.all(cardPadding),
+      margin: EdgeInsets.all(padding),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(padding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Question ${questionNumber}', style: Theme.of(context).textTheme.titleMedium),
+            Text('Question $questionNumber', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             Text(question.text, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 16),
@@ -50,7 +47,7 @@ class QuestionCard extends StatelessWidget {
                   ),
                 ),
               );
-            })
+            }),
           ],
         ),
       ),

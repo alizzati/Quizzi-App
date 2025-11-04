@@ -18,9 +18,9 @@ class ScoreBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
+        color: Colors.white.withOpacity(0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white24, width: 2),
+        border: Border.all(color: Colors.white24, width: 1.5),
       ),
       child: Column(
         children: [

@@ -1,247 +1,145 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import '../models/question_model.dart';
-import '../utils/question_data.dart';
+import 'package:provider/provider.dart';
+import '../providers/quiz_state.dart';
+import '../widgets/question_card.dart';
 import '../widgets/custom_button.dart';
 import 'result_screen.dart';
 
 class QuizScreen extends StatefulWidget {
-  const QuizScreen({super.key});
-
+  const QuizScreen({Key? key}) : super(key: key);
   @override
   State<QuizScreen> createState() => _QuizScreenState();
 }
 
 class _QuizScreenState extends State<QuizScreen> {
-  int currentIndex = 0;
-  int score = 0;
-  int lives = 3;
-  int timeLeft = 60;
-  Timer? countdownTimer;
-  int? selectedIndex;
-  List<int?> userAnswers = List.filled(5, null); // untuk 5 soal
-
   @override
   void initState() {
     super.initState();
-    startTimer();
-  }
-
-  void startTimer() {
-    countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (timeLeft > 0) {
-        setState(() => timeLeft--);
-      } else {
-        timer.cancel();
-        goToResult(isWin: false, image: 'assets/images/lose.png');
-      }
-    });
-  }
-
-  void goToResult({required bool isWin, required String image}) {
-    countdownTimer?.cancel();
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ResultScreen(
-          score: score,
-          totalQuestions: questionsData.length,
-          isWin: isWin,
-          imagePath: image,
-        ),
-      ),
-    );
-  }
-
-  void selectAnswer(int index) {
-    final currentQuestion = questionsData[currentIndex];
-    final prevAnswer = userAnswers[currentIndex];
-
-    setState(() {
-      selectedIndex = index;
-      userAnswers[currentIndex] = index;
-
-      if (prevAnswer == null) {
-        // jawaban baru
-        if (index == currentQuestion.correctIndex) {
-          score += 20;
-        } else {
-          lives--;
-        }
-      } else {
-        // jika ubah jawaban dari benar ke salah
-        if (prevAnswer == currentQuestion.correctIndex &&
-            index != currentQuestion.correctIndex) {
-          score -= 20;
-          lives--;
-        }
-        // jika ubah dari salah ke benar
-        else if (prevAnswer != currentQuestion.correctIndex &&
-            index == currentQuestion.correctIndex) {
-          score += 20;
-        }
-      }
-
-      // Jika nyawa habis
-      if (lives <= 0) {
-        goToResult(isWin: false, image: 'assets/images/lose.png');
-      }
-    });
-  }
-
-  void nextQuestion() {
-    if (currentIndex < questionsData.length - 1) {
-      setState(() {
-        currentIndex++;
-        selectedIndex = userAnswers[currentIndex];
-      });
-    } else {
-      goToResult(isWin: true, image: 'assets/images/gold.png');
-    }
-  }
-
-  void previousQuestion() {
-    if (currentIndex > 0) {
-      setState(() {
-        currentIndex--;
-        selectedIndex = userAnswers[currentIndex];
-      });
-    }
-  }
-
-  Color getAnswerColor(int index) {
-    final currentQuestion = questionsData[currentIndex];
-    final selected = userAnswers[currentIndex];
-
-    if (selected == null) return Colors.white;
-    if (index == currentQuestion.correctIndex) return Colors.greenAccent;
-    if (index == selected && index != currentQuestion.correctIndex) {
-      return Colors.redAccent;
-    }
-    return Colors.white;
+    // startTimer dipanggil oleh provider.startQuiz() dari HomeScreen
   }
 
   @override
   void dispose() {
-    countdownTimer?.cancel();
+    Provider.of<QuizState>(context, listen: false).stopTimer();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final currentQuestion = questionsData[currentIndex];
+    return Consumer<QuizState>(
+      builder: (context, quiz, child) {
+        // jika nyawa habis -> langsung ke result
+        if (quiz.lives <= 0) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ResultScreen(score: quiz.score, totalQuestions: quiz.questions.length)));
+          });
+        }
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF0B1023),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Top bar: timer & hearts
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
+        final question = quiz.questions[quiz.currentIndex];
+
+        return Scaffold(
+          backgroundColor: const Color(0xFF0B1023),
+          body: SafeArea(
+            child: Column(
+              children: [
+                // Top bar: timer & lives
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Icon(Icons.timer, color: Colors.white),
-                      const SizedBox(width: 5),
-                      Text("$timeLeft s",
-                          style: const TextStyle(color: Colors.white)),
+                      Row(
+                        children: [
+                          const Icon(Icons.timer, color: Colors.white),
+                          const SizedBox(width: 6),
+                          Text('${quiz.timeLeft}s', style: const TextStyle(color: Colors.white)),
+                        ],
+                      ),
+                      Row(
+                        children: List.generate(3, (i) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Icon(i < quiz.lives ? Icons.favorite : Icons.favorite_border, color: Colors.pinkAccent),
+                          );
+                        }),
+                      ),
                     ],
                   ),
-                  Row(
-                    children: List.generate(
-                      3,
-                          (i) => Icon(
-                        i < lives
-                            ? Icons.favorite
-                            : Icons.favorite_border_outlined,
-                        color: Colors.pinkAccent,
-                      ),
+                ),
+
+                // Question card
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 8),
+                        Text('Question ${quiz.currentIndex + 1} of ${quiz.questions.length}', style: const TextStyle(color: Colors.white70)),
+                        const SizedBox(height: 8),
+                        QuestionCard(
+                          question: question,
+                          questionNumber: quiz.currentIndex + 1,
+                          selectedIndex: quiz.userAnswers[quiz.currentIndex],
+                          onSelect: (index) {
+                            quiz.selectAnswer(index);
+                            // jika lives habis setelah memilih -> pindah hasil
+                            if (quiz.lives <= 0) {
+                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ResultScreen(score: quiz.score, totalQuestions: quiz.questions.length)));
+                              return;
+                            }
+                            // jika masih ada, lanjut otomatis? di sini kita biarkan user menekan Next
+                          },
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 20),
+                ),
 
-              Text(
-                "Question ${currentIndex + 1} of ${questionsData.length}",
-                style:
-                const TextStyle(color: Colors.white70, fontSize: 16),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                currentQuestion.text,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 30),
-
-              // Option buttons
-              Column(
-                children: List.generate(currentQuestion.options.length, (i) {
-                  final option = currentQuestion.options[i];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: GestureDetector(
-                      onTap: () => selectAnswer(i),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 16, horizontal: 14),
-                        decoration: BoxDecoration(
-                          color: getAnswerColor(i),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: Colors.white30),
-                        ),
-                        child: Text(
-                          option,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.black87,
-                            fontWeight: FontWeight.w500,
-                          ),
+                // Navigation buttons
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: CustomButton(
+                          label: 'Previous',
+                          onPressed: quiz.currentIndex > 0
+                              ? () {
+                            quiz.previousQuestion();
+                          }
+                              : null,
+                          height: 48,
+                          color: Colors.grey[800],
                         ),
                       ),
-                    ),
-                  );
-                }),
-              ),
-
-              const Spacer(),
-
-              // Navigation buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CustomButton(
-                    text: "Previous",
-                    onPressed:
-                    currentIndex > 0 ? previousQuestion : null,
-                    color: Colors.grey[800]!,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: CustomButton(
+                          label: quiz.currentIndex == quiz.questions.length - 1 ? 'Finish' : 'Next',
+                          onPressed: quiz.userAnswers[quiz.currentIndex] != null
+                              ? () {
+                            // if last question -> show result
+                            if (quiz.currentIndex == quiz.questions.length - 1) {
+                              // stop timer
+                              quiz.stopTimer();
+                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ResultScreen(score: quiz.score, totalQuestions: quiz.questions.length)));
+                            } else {
+                              quiz.nextQuestion();
+                            }
+                          }
+                              : null,
+                          height: 48,
+                          color: Colors.blueAccent,
+                        ),
+                      ),
+                    ],
                   ),
-                  CustomButton(
-                    text: currentIndex == questionsData.length - 1
-                        ? "Finish"
-                        : "Next",
-                    onPressed: userAnswers[currentIndex] != null
-                        ? nextQuestion
-                        : null,
-                    color: Colors.blueAccent,
-                  ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
