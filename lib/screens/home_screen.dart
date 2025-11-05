@@ -16,7 +16,7 @@ class HomeScreen extends StatelessWidget {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF1E1E99), Color(0xFF5D2EFF)],
+            colors: [Color(0xFF5600EF), Color(0xFF1C0277)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -49,7 +49,7 @@ class HomeScreen extends StatelessWidget {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00C2FF),
+                    backgroundColor: const Color(0xFF673AB7),
                     minimumSize: const Size(double.infinity, 54),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),

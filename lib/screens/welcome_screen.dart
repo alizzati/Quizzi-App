@@ -12,9 +12,10 @@ class WelcomeScreen extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Text('Welcome to Quizard!', style: Theme.of(context).textTheme.displaySmall),
+              Text('Welcome to Quizard!', style: Theme.of(context).textTheme.displaySmall,
+                  textAlign: TextAlign.center),
               const SizedBox(height: 20),
-              Image.asset('assets/images/hartakarun.png', height: 160),
+              Image.asset('assets/images/hartakarun.png', height: 250),
               const SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () => Navigator.pushNamed(context, '/signup'),

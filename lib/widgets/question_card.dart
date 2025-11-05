@@ -22,7 +22,7 @@ class QuestionCard extends StatelessWidget {
     return Center( // memastikan posisi di tengah layar
       child: Card(
         margin: EdgeInsets.all(padding),
-        color: Colors.white.withOpacity(0.2), // 🔹 ini membuat background transparan
+        color: Colors.white.withOpacity(0.2), // ini membuat background transparan
         elevation: 6, // bisa kamu ubah ke 0 jika mau benar-benar flat
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),

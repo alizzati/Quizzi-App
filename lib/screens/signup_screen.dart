@@ -41,14 +41,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
   InputDecoration _inputDecoration(String label) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: Colors.white70),
+      labelStyle: const TextStyle(color: Colors.deepPurple),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: Colors.white30),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.white),
+        borderSide: const BorderSide(color: Colors.deepPurple),
       ),
       filled: true,
       fillColor: Colors.white10,
@@ -81,7 +81,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       style: Theme.of(context)
                           .textTheme
                           .headlineMedium
-                          ?.copyWith(color: Colors.white),
+                          ?.copyWith(color: Colors.deepPurple),
                     ),
                     const SizedBox(height: 20),
                     TextFormField(
@@ -99,7 +99,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       validator: (v) {
                         if (v == null || v.isEmpty) return 'Enter email';
                         if (!v.trim().toLowerCase().endsWith('@gmail.com')) {
-                          return 'Email harus berakhiran @gmail.com';
+                          return 'Must be an @gmail.com';
                         }
                         return null;
                       },
@@ -118,7 +118,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ElevatedButton(
                       onPressed: _submit,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00C2FF),
+                        backgroundColor: const Color(0xFF673AB7),
                         minimumSize: const Size(double.infinity, 50),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
