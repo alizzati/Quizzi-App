@@ -4,25 +4,25 @@ import '../models/question_model.dart';
 import '../utils/question_data.dart';
 
 class QuizState extends ChangeNotifier {
-  // 🧩 Tambahan: nama pemain
-  String playerName;
+  String _playerName = '';
+  String get playerName => _playerName;
 
-  // Data
   final List<Question> questions = List.of(questionsData);
-
-  // Progress
   int currentIndex = 0;
-  late List<int?> userAnswers; // menyimpan indeks jawaban user per soal
+  late List<int?> userAnswers;
   int lives = 3;
 
-  // Timer per soal
   int timePerQuestion = 15;
   int timeLeft = 15;
   Timer? _timer;
 
-  // 🧩 Konstruktor menerima nama pemain
-  QuizState({required this.playerName}) {
+  QuizState() {
     _init();
+  }
+
+  void setPlayerName(String name) {
+    _playerName = name;
+    notifyListeners();
   }
 
   void _init() {
@@ -33,43 +33,31 @@ class QuizState extends ChangeNotifier {
     _cancelTimer();
   }
 
-  // Mulai quiz / reset
   void startQuiz() {
     _init();
     startTimer();
     notifyListeners();
   }
 
-  // Score dihitung dari userAnswers
   int get score {
     int s = 0;
     for (int i = 0; i < questions.length; i++) {
       if (userAnswers[i] != null && userAnswers[i] == questions[i].correctIndex) {
-        s += 20; // tiap soal 20 poin
+        s += 20;
       }
     }
     return s;
   }
 
-  void setPlayerName(String name) {
-    playerName = name;
-    notifyListeners();
-  }
-
-  // Pilih jawaban — simpan jawaban, update lives bila salah, jangan tampilkan benar/salah
   void selectAnswer(int index) {
     final prev = userAnswers[currentIndex];
     final correct = questions[currentIndex].correctIndex;
 
     if (prev == null) {
       userAnswers[currentIndex] = index;
-      if (index != correct) {
-        lives = (lives - 1).clamp(0, 99);
-      }
+      if (index != correct) lives = (lives - 1).clamp(0, 99);
     } else if (prev != index) {
-      if (prev == correct && index != correct) {
-        lives = (lives - 1).clamp(0, 99);
-      }
+      if (prev == correct && index != correct) lives = (lives - 1).clamp(0, 99);
       userAnswers[currentIndex] = index;
     }
 
@@ -77,7 +65,6 @@ class QuizState extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Navigasi
   void nextQuestion() {
     if (currentIndex < questions.length - 1) {
       currentIndex++;
@@ -94,7 +81,6 @@ class QuizState extends ChangeNotifier {
     }
   }
 
-  // Timer management
   void startTimer() {
     _cancelTimer();
     timeLeft = timePerQuestion;
@@ -117,7 +103,6 @@ class QuizState extends ChangeNotifier {
   void _onTimeUp() {
     _cancelTimer();
     lives = (lives - 1).clamp(0, 99);
-
     if (lives > 0 && currentIndex < questions.length - 1) {
       currentIndex++;
       timeLeft = timePerQuestion;
@@ -140,8 +125,8 @@ class QuizState extends ChangeNotifier {
     _cancelTimer();
   }
 
-  // Reset / ulang quiz
   void resetQuiz() {
+    // ⚠️ jangan hapus nama player
     _cancelTimer();
     _init();
     notifyListeners();

@@ -5,11 +5,13 @@ import 'quiz_screen.dart';
 import 'signup_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  final String playerName;
-  const HomeScreen({Key? key, required this.playerName}) : super(key: key);
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final quiz = context.watch<QuizState>();
+    final playerName = quiz.playerName;
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -36,17 +38,13 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(height: 24),
                 Image.asset('assets/images/juara3.png', height: 180),
                 const SizedBox(height: 40),
-
-                // ✅ Start Quiz Button
                 ElevatedButton(
                   onPressed: () {
+                    quiz.startQuiz();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => ChangeNotifierProvider(
-                          create: (_) => QuizState(playerName: playerName),
-                          child: const QuizScreen(),
-                        ),
+                        builder: (_) => const QuizScreen(),
                       ),
                     );
                   },
@@ -59,17 +57,22 @@ class HomeScreen extends StatelessWidget {
                   ),
                   child: const Text(
                     'Start Quiz',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 14),
-
-                // Logout Button
                 OutlinedButton(
-                  onPressed: () => Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const SignUpScreen()),
-                  ),
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const SignUpScreen(),
+                      ),
+                    );
+                  },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.white,
                     side: const BorderSide(color: Colors.white),
@@ -80,7 +83,10 @@ class HomeScreen extends StatelessWidget {
                   ),
                   child: const Text(
                     'Logout',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],

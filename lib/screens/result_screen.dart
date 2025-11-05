@@ -86,6 +86,7 @@ class ResultScreen extends StatelessWidget {
                         Navigator.pushReplacementNamed(
                           context,
                           '/quiz',
+                          arguments: {'playerName': playerName}, // mark by me
                         );
                       },
                       style: ElevatedButton.styleFrom(

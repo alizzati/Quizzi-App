@@ -13,7 +13,7 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => QuizState(playerName: '')), // ✅ playerName awal kosong
+        ChangeNotifierProvider(create: (_) => QuizState()), // ✅ tidak perlu parameter playerName
       ],
       child: const MyApp(),
     ),
@@ -25,8 +25,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final quiz = Provider.of<QuizState>(context, listen: false); // ✅ sekarang quiz bisa diakses di sini
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Quizard',
@@ -34,26 +32,18 @@ class MyApp extends StatelessWidget {
       darkTheme: darkTheme,
       themeMode: ThemeMode.system,
 
-      // ✅ Semua route
+      // ✅ Routing utama
       initialRoute: '/',
       routes: {
         '/': (context) => const WelcomeScreen(),
         '/signup': (context) => const SignUpScreen(),
-
-        '/home': (context) {
-          final args = ModalRoute.of(context)?.settings.arguments as Map?;
-          final playerName = args?['playerName'] ?? quiz.playerName;
-
-          // ✅ Simpan nama player ke provider agar persist
-          quiz.setPlayerName(playerName);
-
-          return HomeScreen(playerName: playerName);
-        },
-
+        '/home': (context) => const HomeScreen(),
         '/quiz': (context) => const QuizScreen(),
-
         '/result': (context) {
-          final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+          final args = ModalRoute
+              .of(context)
+              ?.settings
+              .arguments as Map<String, dynamic>?;
           final int score = args?['score'] ?? 0;
           final int totalQuestions = args?['totalQuestions'] ?? 0;
           final bool isWin = args?['isWin'] ?? false;
@@ -65,7 +55,7 @@ class MyApp extends StatelessWidget {
             isWin: isWin,
             imagePath: imagePath,
           );
-        },
+        }
       },
     );
   }
